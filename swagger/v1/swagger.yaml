@@ -1,0 +1,1396 @@
+openapi: 3.0.1
+info:
+  title: Maybe Finance API
+  version: v1
+  description: Personal finance management API with AI-powered insights
+  contact:
+    name: Maybe Finance
+    url: https://maybefinance.com
+servers:
+  - url: https://{defaultHost}
+    variables:
+      defaultHost:
+        default: api.maybefinance.com
+paths:
+  /api/v1/auth/signup:
+    post:
+      tags:
+        - Authentication
+      summary: Create user account
+      description: Register a new user account with device information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                      example: user@example.com
+                    password:
+                      type: string
+                      minLength: 8
+                      example: SecurePass123!
+                    first_name:
+                      type: string
+                      example: John
+                    last_name:
+                      type: string
+                      example: Doe
+                  required:
+                    - email
+                    - password
+                    - first_name
+                    - last_name
+                device:
+                  type: object
+                  properties:
+                    device_id:
+                      type: string
+                      example: device-123
+                    device_name:
+                      type: string
+                      example: iPhone 15
+                    device_type:
+                      type: string
+                      example: mobile
+                    os_version:
+                      type: string
+                      example: iOS 17.0
+                    app_version:
+                      type: string
+                      example: 1.0.0
+                  required:
+                    - device_id
+                    - device_name
+                    - device_type
+                    - os_version
+                    - app_version
+                invite_code:
+                  type: string
+                  example: INVITE123
+              required:
+                - user
+                - device
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiJ9...
+                  refresh_token:
+                    type: string
+                    example: refresh_token_123
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                    example: 2592000
+                  created_at:
+                    type: integer
+                    example: 1640995200
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: uuid
+                      email:
+                        type: string
+                        example: user@example.com
+                      first_name:
+                        type: string
+                        example: John
+                      last_name:
+                        type: string
+                        example: Doe
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example:
+                      - Email has already been taken
+                      - Password is too short
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Device information is required
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user
+      description: Login with email and password, supports MFA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  example: SecurePass123!
+                otp_code:
+                  type: string
+                  example: '123456'
+                device:
+                  type: object
+                  properties:
+                    device_id:
+                      type: string
+                      example: device-123
+                    device_name:
+                      type: string
+                      example: iPhone 15
+                    device_type:
+                      type: string
+                      example: mobile
+                    os_version:
+                      type: string
+                      example: iOS 17.0
+                    app_version:
+                      type: string
+                      example: 1.0.0
+                  required:
+                    - device_id
+                    - device_name
+                    - device_type
+                    - os_version
+                    - app_version
+              required:
+                - email
+                - password
+                - device
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiJ9...
+                  refresh_token:
+                    type: string
+                    example: refresh_token_123
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                    example: 2592000
+                  created_at:
+                    type: integer
+                    example: 1640995200
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: uuid
+                      email:
+                        type: string
+                        example: user@example.com
+                      first_name:
+                        type: string
+                        example: John
+                      last_name:
+                        type: string
+                        example: Doe
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid email or password
+                  mfa_required:
+                    type: boolean
+                    example: true
+
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Get a new access token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: refresh_token_123
+                device:
+                  type: object
+                  properties:
+                    device_id:
+                      type: string
+                      example: device-123
+                  required:
+                    - device_id
+              required:
+                - refresh_token
+                - device
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiJ9...
+                  refresh_token:
+                    type: string
+                    example: new_refresh_token_123
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                    example: 2592000
+                  created_at:
+                    type: integer
+                    example: 1640995200
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid refresh token
+
+  /api/v1/accounts:
+    get:
+      tags:
+        - Accounts
+      summary: List accounts
+      description: Get all accounts for the authenticated user's family
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of items per page (max 100)
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accounts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: uuid
+                        name:
+                          type: string
+                          example: Chase Checking
+                        balance:
+                          type: string
+                          example: '$1,234.56'
+                        currency:
+                          type: string
+                          example: USD
+                        classification:
+                          type: string
+                          enum:
+                            - asset
+                            - liability
+                          example: asset
+                        account_type:
+                          type: string
+                          example: depository
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      per_page:
+                        type: integer
+                        example: 25
+                      total_count:
+                        type: integer
+                        example: 50
+                      total_pages:
+                        type: integer
+                        example: 2
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Insufficient scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /api/v1/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: List transactions
+      description: Get all transactions for the authenticated user's family with filtering options
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of items per page (max 100)
+          required: false
+          schema:
+            type: integer
+        - name: account_id
+          in: query
+          description: Filter by account ID
+          required: false
+          schema:
+            type: string
+        - name: account_ids
+          in: query
+          description: Filter by multiple account IDs
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: category_id
+          in: query
+          description: Filter by category ID
+          required: false
+          schema:
+            type: string
+        - name: category_ids
+          in: query
+          description: Filter by multiple category IDs
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: merchant_id
+          in: query
+          description: Filter by merchant ID
+          required: false
+          schema:
+            type: string
+        - name: merchant_ids
+          in: query
+          description: Filter by multiple merchant IDs
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: start_date
+          in: query
+          description: Filter transactions from this date
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Filter transactions to this date
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: min_amount
+          in: query
+          description: Filter by minimum amount
+          required: false
+          schema:
+            type: number
+        - name: max_amount
+          in: query
+          description: Filter by maximum amount
+          required: false
+          schema:
+            type: number
+        - name: tag_ids
+          in: query
+          description: Filter by tag IDs
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: type
+          in: query
+          description: Filter by transaction type
+          required: false
+          schema:
+            type: string
+            enum:
+              - income
+              - expense
+        - name: search
+          in: query
+          description: Search in transaction name, notes, or merchant
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/transaction'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      per_page:
+                        type: integer
+                        example: 25
+                      total_count:
+                        type: integer
+                        example: 100
+                      total_pages:
+                        type: integer
+                        example: 4
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+    post:
+      tags:
+        - Transactions
+      summary: Create transaction
+      description: Create a new transaction
+      security:
+        - bearer_auth: []
+        - api_key: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_id:
+                  type: string
+                  example: uuid
+                  description: Account ID (required)
+                date:
+                  type: string
+                  format: date
+                  example: '2024-01-15'
+                amount:
+                  type: number
+                  example: 100.50
+                name:
+                  type: string
+                  example: Grocery Store Purchase
+                description:
+                  type: string
+                  example: Weekly groceries
+                notes:
+                  type: string
+                  example: Organic produce
+                currency:
+                  type: string
+                  example: USD
+                category_id:
+                  type: string
+                  example: uuid
+                merchant_id:
+                  type: string
+                  example: uuid
+                nature:
+                  type: string
+                  enum:
+                    - income
+                    - expense
+                    - inflow
+                    - outflow
+                  example: expense
+                tag_ids:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - tag1
+                    - tag2
+              required:
+                - account_id
+                - date
+                - amount
+      responses:
+        '201':
+          description: Transaction created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transaction'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: validation_failed
+                  message:
+                    type: string
+                    example: Transaction could not be created
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example:
+                      - Account ID is required
+                      - Amount must be present
+
+  /api/v1/transactions/{id}:
+    get:
+      tags:
+        - Transactions
+      summary: Show transaction
+      description: Get a specific transaction by ID
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: id
+          in: path
+          description: Transaction ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transaction'
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+    patch:
+      tags:
+        - Transactions
+      summary: Update transaction
+      description: Update an existing transaction
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: id
+          in: path
+          description: Transaction ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date
+                  example: '2024-01-15'
+                amount:
+                  type: number
+                  example: 100.50
+                name:
+                  type: string
+                  example: Updated Transaction Name
+                notes:
+                  type: string
+                  example: Updated notes
+                category_id:
+                  type: string
+                  example: uuid
+                merchant_id:
+                  type: string
+                  example: uuid
+                tag_ids:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - tag1
+                    - tag2
+      responses:
+        '200':
+          description: Transaction updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transaction'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+    delete:
+      tags:
+        - Transactions
+      summary: Delete transaction
+      description: Delete a transaction
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: id
+          in: path
+          description: Transaction ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Transaction deleted successfully
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /api/v1/chats:
+    get:
+      tags:
+        - Chats
+      summary: List chats
+      description: Get all AI chats for the authenticated user
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chats:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/chat_summary'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      per_page:
+                        type: integer
+                        example: 20
+                      total_count:
+                        type: integer
+                        example: 50
+                      total_pages:
+                        type: integer
+                        example: 3
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: AI features disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+    post:
+      tags:
+        - Chats
+      summary: Create chat
+      description: Create a new AI chat with optional initial message
+      security:
+        - bearer_auth: []
+        - api_key: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Budget Planning Discussion
+                message:
+                  type: string
+                  example: Help me plan my monthly budget
+                model:
+                  type: string
+                  enum:
+                    - gpt-4
+                    - gpt-4-turbo
+                    - gpt-3.5-turbo
+                  example: gpt-4
+      responses:
+        '201':
+          description: Chat created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/chat'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /api/v1/chats/{id}:
+    get:
+      tags:
+        - Chats
+      summary: Show chat
+      description: Get a specific chat with messages
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: id
+          in: path
+          description: Chat ID
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number for messages pagination
+          required: false
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of messages per page
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/chat_with_messages'
+        '404':
+          description: Chat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+    patch:
+      tags:
+        - Chats
+      summary: Update chat
+      description: Update chat title
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: id
+          in: path
+          description: Chat ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Updated Chat Title
+              required:
+                - title
+      responses:
+        '200':
+          description: Chat updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/chat'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+    delete:
+      tags:
+        - Chats
+      summary: Delete chat
+      description: Delete a chat and all its messages
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: id
+          in: path
+          description: Chat ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Chat deleted successfully
+        '404':
+          description: Chat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /api/v1/chats/{chat_id}/messages:
+    post:
+      tags:
+        - Chats
+      summary: Create message
+      description: Send a message to an AI chat
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: chat_id
+          in: path
+          description: Chat ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: What is my current spending on groceries?
+                model:
+                  type: string
+                  enum:
+                    - gpt-4
+                    - gpt-4-turbo
+                    - gpt-3.5-turbo
+                  example: gpt-4
+              required:
+                - content
+      responses:
+        '201':
+          description: Message created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/message'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /api/v1/chats/{chat_id}/messages/retry:
+    post:
+      tags:
+        - Chats
+      summary: Retry last message
+      description: Retry the last assistant message in a chat
+      security:
+        - bearer_auth: []
+        - api_key: []
+      parameters:
+        - name: chat_id
+          in: path
+          description: Chat ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Retry initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Retry initiated
+                  message_id:
+                    type: string
+                    example: uuid
+        '422':
+          description: No assistant message to retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /api/v1/usage:
+    get:
+      tags:
+        - Usage
+      summary: Get usage information
+      description: Get API usage and rate limit information
+      security:
+        - bearer_auth: []
+        - api_key: []
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_key:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: My API Key
+                      scopes:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - read
+                          - write
+                      last_used_at:
+                        type: string
+                        format: date-time
+                        example: '2024-01-15T10:30:00Z'
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: '2024-01-01T00:00:00Z'
+                  rate_limit:
+                    type: object
+                    properties:
+                      tier:
+                        type: string
+                        example: free
+                      limit:
+                        type: integer
+                        example: 1000
+                      current_count:
+                        type: integer
+                        example: 150
+                      remaining:
+                        type: integer
+                        example: 850
+                      reset_in_seconds:
+                        type: integer
+                        example: 3600
+                      reset_at:
+                        type: string
+                        format: date-time
+                        example: '2024-01-15T11:30:00Z'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+components:
+  securitySchemes:
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    api_key:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  schemas:
+    transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          example: uuid
+        date:
+          type: string
+          format: date
+          example: '2024-01-15'
+        amount:
+          type: string
+          example: '$100.50'
+        currency:
+          type: string
+          example: USD
+        name:
+          type: string
+          example: Grocery Store Purchase
+        notes:
+          type: string
+          example: Weekly groceries
+        classification:
+          type: string
+          enum:
+            - income
+            - expense
+          example: expense
+        account:
+          type: object
+          properties:
+            id:
+              type: string
+              example: uuid
+            name:
+              type: string
+              example: Chase Checking
+            account_type:
+              type: string
+              example: depository
+        category:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+              example: uuid
+            name:
+              type: string
+              example: Groceries
+            classification:
+              type: string
+              example: expense
+            color:
+              type: string
+              example: '#FF6B6B'
+            icon:
+              type: string
+              example: shopping-cart
+        merchant:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+              example: uuid
+            name:
+              type: string
+              example: Whole Foods
+        tags:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: uuid
+              name:
+                type: string
+                example: organic
+              color:
+                type: string
+                example: '#4ECDC4'
+        transfer:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+              example: uuid
+            amount:
+              type: string
+              example: '$100.50'
+            currency:
+              type: string
+              example: USD
+            other_account:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: uuid
+                name:
+                  type: string
+                  example: Savings Account
+                account_type:
+                  type: string
+                  example: depository
+        created_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:30:00Z'
+
+    chat_summary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: uuid
+        title:
+          type: string
+          example: Budget Planning Discussion
+        last_message_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:30:00Z'
+        message_count:
+          type: integer
+          example: 5
+        error:
+          type: string
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:30:00Z'
+
+    chat:
+      type: object
+      properties:
+        id:
+          type: string
+          example: uuid
+        title:
+          type: string
+          example: Budget Planning Discussion
+        error:
+          type: string
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:30:00Z'
+
+    chat_with_messages:
+      allOf:
+        - $ref: '#/components/schemas/chat'
+        - type: object
+          properties:
+            messages:
+              type: array
+              items:
+                $ref: '#/components/schemas/message'
+            pagination:
+              type: object
+              properties:
+                page:
+                  type: integer
+                  example: 1
+                per_page:
+                  type: integer
+                  example: 50
+                total_count:
+                  type: integer
+                  example: 2
+                total_pages:
+                  type: integer
+                  example: 1
+
+    message:
+      type: object
+      properties:
+        id:
+          type: string
+          example: uuid
+        type:
+          type: string
+          enum:
+            - user_message
+            - assistant_message
+          example: user_message
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+          example: user
+        content:
+          type: string
+          example: What is my current spending on groceries?
+        model:
+          type: string
+          example: gpt-4
+        created_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:30:00Z'
+        tool_calls:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: uuid
+              function_name:
+                type: string
+                example: get_accounts
+              function_arguments:
+                type: object
+                example: {}
+              function_result:
+                type: object
+                example:
+                  accounts: []
+              created_at:
+                type: string
+                format: date-time
+                example: '2024-01-15T10:30:00Z'
+
+    error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: unauthorized
+        message:
+          type: string
+          example: Human readable error message
+        details:
+          type: array
+          items:
+            type: string
+          example:
+            - Additional error details
+
+security:
+  - bearer_auth: []
+  - api_key: []

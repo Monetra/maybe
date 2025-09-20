@@ -104,6 +104,7 @@ group :development do
   gem "stackprof"
   gem "derailed_benchmarks"
   gem "foreman"
+  gem "syntax_suggest"
 end
 
 group :test do
@@ -114,4 +115,12 @@ group :test do
   gem "webmock"
   gem "climate_control"
   gem "simplecov", require: false
+  gem "rswag"
+  gem "rswag-api"
+  gem "rswag-ui"
+  gem "rswag-specs"
+  gem "rspec-rails"
+  gem "rspec-core"
+  gem "rspec-expectations"
+  gem "rspec-mocks"
 end

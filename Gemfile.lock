@@ -134,6 +134,7 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
+    cgi (0.5.0)
     childprocess (5.1.0)
       logger (~> 1.5)
     chunky_png (1.4.0)
@@ -172,6 +173,7 @@ GEM
       ruby-statistics (>= 4.0.1)
       ruby2_keywords
       thor (>= 0.19, < 2)
+    diff-lcs (1.6.2)
     docile (1.4.1)
     doorkeeper (5.8.2)
       railties (>= 5)
@@ -180,7 +182,8 @@ GEM
       dotenv (= 3.1.8)
       railties (>= 6.1)
     drb (2.2.3)
-    erb (5.0.1)
+    erb (4.0.4)
+      cgi (>= 0.3.3)
     erb_lint (0.9.0)
       activesupport
       better_html (>= 2.0.1)
@@ -204,13 +207,13 @@ GEM
       net-http (>= 0.5.0)
     faraday-retry (2.3.2)
       faraday (~> 2.0)
-    ffi (1.17.2-aarch64-linux-gnu)
+    ffi (1.17.2-aarch64-linux)
     ffi (1.17.2-aarch64-linux-musl)
-    ffi (1.17.2-arm-linux-gnu)
+    ffi (1.17.2-arm-linux)
     ffi (1.17.2-arm-linux-musl)
     ffi (1.17.2-arm64-darwin)
     ffi (1.17.2-x86_64-darwin)
-    ffi (1.17.2-x86_64-linux-gnu)
+    ffi (1.17.2-x86_64-linux)
     ffi (1.17.2-x86_64-linux-musl)
     foreman (0.88.1)
     fugit (1.11.1)
@@ -273,6 +276,9 @@ GEM
       activesupport (>= 5.0.0)
     jmespath (1.6.2)
     json (2.12.2)
+    json-schema (5.2.2)
+      addressable (~> 2.8)
+      bigdecimal (~> 3.1)
     jwt (2.10.2)
       base64
     language_server-protocol (3.17.0.5)
@@ -345,11 +351,11 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     nio4r (2.7.4)
-    nokogiri (1.18.8-aarch64-linux-gnu)
+    nokogiri (1.18.8-aarch64-linux)
       racc (~> 1.4)
     nokogiri (1.18.8-aarch64-linux-musl)
       racc (~> 1.4)
-    nokogiri (1.18.8-arm-linux-gnu)
+    nokogiri (1.18.8-arm-linux)
       racc (~> 1.4)
     nokogiri (1.18.8-arm-linux-musl)
       racc (~> 1.4)
@@ -357,7 +363,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.8-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.8-x86_64-linux-gnu)
+    nokogiri (1.18.8-x86_64-linux)
       racc (~> 1.4)
     nokogiri (1.18.8-x86_64-linux-musl)
       racc (~> 1.4)
@@ -466,6 +472,38 @@ GEM
       chunky_png (~> 1.0)
       rqrcode_core (~> 2.0)
     rqrcode_core (2.0.0)
+    rspec-core (3.13.5)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-rails (8.0.2)
+      actionpack (>= 7.2)
+      activesupport (>= 7.2)
+      railties (>= 7.2)
+      rspec-core (~> 3.13)
+      rspec-expectations (~> 3.13)
+      rspec-mocks (~> 3.13)
+      rspec-support (~> 3.13)
+    rspec-support (3.13.6)
+    rswag (2.16.0)
+      rswag-api (= 2.16.0)
+      rswag-specs (= 2.16.0)
+      rswag-ui (= 2.16.0)
+    rswag-api (2.16.0)
+      activesupport (>= 5.2, < 8.1)
+      railties (>= 5.2, < 8.1)
+    rswag-specs (2.16.0)
+      activesupport (>= 5.2, < 8.1)
+      json-schema (>= 2.2, < 6.0)
+      railties (>= 5.2, < 8.1)
+      rspec-core (>= 2.14)
+    rswag-ui (2.16.0)
+      actionpack (>= 5.2, < 8.1)
+      railties (>= 5.2, < 8.1)
     rubocop (1.76.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
@@ -516,7 +554,7 @@ GEM
       addressable (>= 2.3.5)
       faraday (>= 0.17.3, < 3)
     securerandom (0.4.1)
-    selenium-webdriver (4.34.0)
+    selenium-webdriver (4.32.0)
       base64 (~> 0.2)
       logger (~> 1.4)
       rexml (~> 3.2, >= 3.2.5)
@@ -531,12 +569,12 @@ GEM
     sentry-sidekiq (5.26.0)
       sentry-ruby (~> 5.26.0)
       sidekiq (>= 3.0)
-    sidekiq (8.0.5)
-      connection_pool (>= 2.5.0)
-      json (>= 2.9.0)
-      logger (>= 1.6.2)
-      rack (>= 3.1.0)
-      redis-client (>= 0.23.2)
+    sidekiq (7.3.9)
+      base64
+      connection_pool (>= 2.3.0)
+      logger
+      rack (>= 2.2.4)
+      redis-client (>= 0.22.2)
     sidekiq-cron (2.3.0)
       cronex (>= 0.13.0)
       fugit (~> 1.8, >= 1.11.1)
@@ -557,15 +595,16 @@ GEM
       railties (>= 6.0.0)
     stringio (3.1.7)
     stripe (15.3.0)
+    syntax_suggest (2.0.2)
     tailwindcss-rails (4.2.3)
       railties (>= 7.0.0)
       tailwindcss-ruby (~> 4.0)
     tailwindcss-ruby (4.1.8)
-    tailwindcss-ruby (4.1.8-aarch64-linux-gnu)
+    tailwindcss-ruby (4.1.8-aarch64-linux)
     tailwindcss-ruby (4.1.8-aarch64-linux-musl)
     tailwindcss-ruby (4.1.8-arm64-darwin)
     tailwindcss-ruby (4.1.8-x86_64-darwin)
-    tailwindcss-ruby (4.1.8-x86_64-linux-gnu)
+    tailwindcss-ruby (4.1.8-x86_64-linux)
     tailwindcss-ruby (4.1.8-x86_64-linux-musl)
     terminal-table (4.0.0)
       unicode-display_width (>= 1.1.1, < 4)
@@ -584,7 +623,7 @@ GEM
     useragent (0.16.11)
     vcr (6.3.1)
       base64
-    vernier (1.8.0)
+    vernier (0.1.999)
     view_component (3.23.2)
       activesupport (>= 5.2.0, < 8.1)
       concurrent-ruby (~> 1)
@@ -606,16 +645,16 @@ GEM
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yard (0.9.37)
-    zeitwerk (2.7.3)
+    zeitwerk (2.6.18)
 
 PLATFORMS
-  aarch64-linux-gnu
+  aarch64-linux
   aarch64-linux-musl
-  arm-linux-gnu
+  arm-linux
   arm-linux-musl
   arm64-darwin
   x86_64-darwin
-  x86_64-linux-gnu
+  x86_64-linux
   x86_64-linux-musl
 
 DEPENDENCIES
@@ -669,6 +708,14 @@ DEPENDENCIES
   redis (~> 5.4)
   rotp (~> 6.3)
   rqrcode (~> 3.0)
+  rspec-core
+  rspec-expectations
+  rspec-mocks
+  rspec-rails
+  rswag
+  rswag-api
+  rswag-specs
+  rswag-ui
   rubocop-rails-omakase
   ruby-lsp-rails
   ruby-openai
@@ -684,6 +731,7 @@ DEPENDENCIES
   stackprof
   stimulus-rails
   stripe
+  syntax_suggest
   tailwindcss-rails
   turbo-rails
   tzinfo-data
@@ -694,7 +742,7 @@ DEPENDENCIES
   webmock
 
 RUBY VERSION
-   ruby 3.4.4p34
+   ruby 3.1.2p20
 
 BUNDLED WITH
    2.6.9
