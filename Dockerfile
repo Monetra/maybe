@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version and Gemfile
-ARG RUBY_VERSION=3.1.2
+ARG RUBY_VERSION=3.4.4
 FROM registry.docker.com/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
@@ -29,7 +29,10 @@ RUN apt-get install --no-install-recommends -y build-essential libpq-dev git pkg
 COPY .ruby-version Gemfile Gemfile.lock ./
 # Install the exact Bundler version that generated the lockfile
 RUN gem install bundler -v 2.6.9
-RUN bundle install
+# Install gems with retry logic for network issues
+RUN bundle config set --global retry 3 && \
+    bundle config set --global timeout 30 && \
+    bundle install
 
 RUN rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
 

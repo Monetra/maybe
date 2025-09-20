@@ -2,8 +2,10 @@ require "sidekiq/web"
 require "sidekiq/cron/web"
 
 Rails.application.routes.draw do
-  mount Rswag::Api::Engine => "/api-docs"
-  mount Rswag::Ui::Engine => "/api-docs"
+  if defined?(Rswag::Api) && defined?(Rswag::Ui)
+    mount Rswag::Api::Engine => "/api-docs"
+    mount Rswag::Ui::Engine => "/api-docs"
+  end
   use_doorkeeper
   # MFA routes
   resource :mfa, controller: "mfa", only: [ :new, :create ] do
