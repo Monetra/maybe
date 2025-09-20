@@ -27,6 +27,8 @@ RUN apt-get install --no-install-recommends -y build-essential libpq-dev git pkg
 
 # Install application gems
 COPY .ruby-version Gemfile Gemfile.lock ./
+# Install the exact Bundler version that generated the lockfile
+RUN gem install bundler -v 2.6.9
 RUN bundle install
 
 RUN rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
